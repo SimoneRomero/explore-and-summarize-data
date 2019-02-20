@@ -185,7 +185,7 @@ Scaling the data and removing the outliers provides a better visualization of th
 Given the summary and the plot of the quality feature, we can observe that most of the observations are classified as 5 or 6, which represents the median. Few examples were classified between 3 and 4, and 7 and 8, which represents the wines of low and high quality, respectively. Based on that, we decided to group the data into 3 categories: low, average, and high. 
 
 
-```{r}
+```{r echo=FALSE}
 summary(red_wine$quality)
 ```
 
@@ -281,7 +281,7 @@ by(red_wine$pH, red_wine$rating, summary)
 
 ```
 
-For pH feature, the boxplots show that a high pH scale can produce low quality wines. However it is not clear the which is the ideal pH to produce high quality wines, since the values for average and high quality wines are very similar (3.31 and 3.27, respectively).
+For pH feature, the boxplots show that a high pH scale can produce low quality wines. However it is not clear which is the ideal pH to produce high quality wines, since the values for average and high quality wines are very similar (3.31 and 3.27, respectively).
 
 
 ```{r echo=FALSE, Bivariate_Plots - alcohol}
@@ -382,7 +382,7 @@ The strongest relationship was found for volatile.acidity and citric.acid, they 
 
 # Multivariate Plots Section
 
-Based on the results of the previous section, when comparing citric.acid and volatile.acidity, we observed that most of the high quality wines presented high citric.acid concentration and low volatile.acidity concentration. The reverse is true for wines that have obtained low quality rating.
+Based on the results of the previous section, when comparing citric.acid and volatile.acidity, we observed that most of the high quality wines presented high citric.acid concentration and low volatile.acidity concentration. The reverse is true for wines that have obtained low quality rating. Thus, in the plot below we put these two features together.
 
 
 ```{r echo=FALSE, Multivariate_Plots-volatile-citric-rating}
@@ -404,7 +404,7 @@ qplot(x = alcohol, y=pH, data=red_wine, color=rating) +
 ```
 
 
-It seems that alcohol is an important characteristic for classification, so we compare this variable with others that may directly impact the high or low quality rating of a wine.
+The results showed that alcohol is an important characteristic for wine classification, so we compare this variable with others that may directly impact the high or low quality rating of a wine.
 
 In the following plot, we observed that low quality wines have higher density and low alcohol level.
 
