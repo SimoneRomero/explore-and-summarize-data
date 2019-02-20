@@ -105,7 +105,8 @@ p8 <-qplot(x = density, data = red_wine)
 p9 <-qplot(x = pH, data = red_wine)
 p10 <-qplot(x = sulphates, data = red_wine)
 p11 <-qplot(x = alcohol, data = red_wine)
-p12 <-qplot(x = quality, data = red_wine)
+#p12 <-qplot(x = quality, data = red_wine)
+p12 <- ggplot(red_wine, aes(x=factor(quality)))+geom_bar()
 
 grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12)
 
@@ -115,12 +116,80 @@ grid.arrange(p1,p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12)
 Density and pH plots presented a normal distribution, while citric.acid, free.sulfer.dioxide, and total.sufer.dioxide presented a right skewed distribution. Outliers can be observed mainly for residual.sugar and chlorides plots.
 
 
-```{r echo=FALSE, Quality}
-summary(red_wine$quality)
+#### Removing outliers
+
+Let's remove the outliers from residual.sugar and chlorides features to improve the data readability.
+
+The original histogram and the summary for residual.sugar feature are the following:
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(aes(x = residual.sugar), data = red_wine) +
+  geom_histogram()
 ```
 
 
-Given the summary and the plot of the quality feature, we can observe that most of the observations are classified as 5 or 6, which represents the median. Few examples were classified between 3 and 4, and 7 and 8, which represents the wines of low and high quality, respectively. Based on that, the data was grouped into 3 categories: low (< 5), average (< 7), and high ( > 7), as shown in the plot below.
+```{r echo=FALSE}
+summary(red_wine$residual.sugar)
+```
+
+According to this result, the interquartile range is IQR = 0.7 (IQR = Q3 - Q1). This value can be used as a parameter to break the histogram, by removing the data point outside of the upper and lower fences, in other words, this approach will ignore the outliers.
+
+
+```{r echo=FALSE,  message=FALSE, warning=FALSE, histrograms_Plots-residual-sugar}
+p1 <- ggplot(aes(x = residual.sugar), data = red_wine) +
+  geom_histogram() +
+  scale_x_log10()
+
+p2 <- ggplot(aes(x = residual.sugar), data = red_wine) +
+  geom_histogram() +
+  scale_x_log10() +
+  scale_x_continuous(lim= c(1,3.7),breaks = seq(1,3.7,0.3))
+
+grid.arrange(p1,p2)
+```
+
+The plots above show the application of log-scale only and log-scale plus the IQR value to define the breaks. 
+
+The same approach was applied to chlorides feature. Bellow we have the histogram and summary for this feature.
+
+```{r echo=FALSE,  message=FALSE, warning=FALSE}
+ggplot(aes(x =  chlorides), data = red_wine) +
+  geom_histogram()
+```
+
+```{r echo=FALSE}
+summary(red_wine$chlorides)
+```
+
+In this case, the IQR value is 0.02, being the upper and lower fences 0.12 and 0.04, respectively.
+
+
+```{r echo=FALSE,  message=FALSE, warning=FALSE, histrograms_Plots-chlorides}
+p1 <- ggplot(aes(x =  chlorides), data = red_wine) +
+  geom_histogram() +
+  scale_x_log10()
+
+p2 <- ggplot(aes(x =  chlorides), data = red_wine) +
+  geom_histogram() +
+  scale_x_log10() +
+  scale_x_continuous(lim= c(0.04,0.12),breaks = seq(0.04,1.2,0.02))
+
+grid.arrange(p1,p2)
+```
+
+Scaling the data and removing the outliers provides a better visualization of the data distribution. 
+
+
+#### Creating a new variable
+
+Given the summary and the plot of the quality feature, we can observe that most of the observations are classified as 5 or 6, which represents the median. Few examples were classified between 3 and 4, and 7 and 8, which represents the wines of low and high quality, respectively. Based on that, we decided to group the data into 3 categories: low, average, and high. 
+
+
+```{r}
+summary(red_wine$quality)
+```
+
+According to the summary information from quality feature, we have: Q1 = 5, Q2 = 6, and Q3 = 6. Observations with quality rating lower than 5 were classified as *low*, observations with quality rating between 5 and 6 were classified as *average*, to be closer to the median, and observations with quality rating equal or higher than 7 were classified as *high*, as shown in the plot below.
 
 
 ```{r echo=FALSE, Rating}
@@ -152,7 +221,7 @@ I think volatile.acidity, citric.acid, total.sufer.dioxide, pH, and the percent 
 
 ### Did you create any new variables from existing variables in the dataset?
 
-Yes, I created the 'rating' variable, which is a categorical representation of wine quality: low (< 5), average (< 7), and high ( > 7). 
+Yes, I created the 'rating' variable, which is a categorical representation of wine quality: low (3,4), average (5,6), and high (7,8). 
 
 ### Of the features you investigated, were there any unusual distributions? Did you perform any operations on the data to tidy, adjust, or change the form of the data? If so, why did you do this?
 
@@ -174,6 +243,9 @@ by(red_wine$volatile.acidity, red_wine$rating, summary)
 ```
 
 
+The boxplots show that as the volatile.acidity decreases the wine quality increases. There is a big difference between the medians of the plots that represent wines of low and high quality, that is, the value of volatile.acidity for high quality wines is practically half of what was found in low quality wines.
+
+
 ```{r echo=FALSE, Bivariate_Plots- citric.acid}
 ggplot(aes(x = rating, y = citric.acid), 
        data = subset(red_wine)) +
@@ -182,6 +254,9 @@ ggplot(aes(x = rating, y = citric.acid),
 by(red_wine$citric.acid, red_wine$rating, summary)
 
 ```
+
+
+For the citric.acid feature occurs the opposite of what happens with volatile.acidity. As the acidity rises, the quality of the wine increases. The median value for the high quality wine is five times the found for low quality wines.
 
 
 ```{r echo=FALSE, Bivariate_Plots -total.sulfer.dioxide}
@@ -194,6 +269,9 @@ by(red_wine$total.sulfur.dioxide, red_wine$rating, summary)
 ```
 
 
+Significant result was not found for total.sulfur.dioxide feature. 
+
+
 ```{r echo=FALSE, Bivariate_Plots - pH}
 ggplot(aes(x = rating, y = pH ), 
        data = subset(red_wine)) +
@@ -202,6 +280,8 @@ ggplot(aes(x = rating, y = pH ),
 by(red_wine$pH, red_wine$rating, summary)
 
 ```
+
+For pH feature, the boxplots show that a high pH scale can produce low quality wines. However it is not clear the which is the ideal pH to produce high quality wines, since the values for average and high quality wines are very similar (3.31 and 3.27, respectively).
 
 
 ```{r echo=FALSE, Bivariate_Plots - alcohol}
@@ -215,9 +295,10 @@ by(red_wine$alcohol, red_wine$rating, summary)
 ```
 
 
-Based on the boxplots, it was clear the relationship between the pH scale and the citric.acid values. With a lower pH, the citric value increases as the wine becomes more acidic, and wines with higher acidic level (pH < 3.27) have received the 'high' rating.
+Regarding the percent alcohol content of the wine, the boxplots show that the higher the percentage of alcohol the better. However, it is not possible to determine how much alcohol can produce low quality wines. 
 
-The plot below shows a negative correlation of -0.5419 between pH and citric.acid features.
+
+Now, let's analyze the correlation between some of the features chosen.
 
 
 ```{r echo=FALSE, citric.acid-ph}
@@ -229,7 +310,9 @@ cor(red_wine$citric.acid, red_wine$pH)
 ```
 
 
-Alcohol and citric.acid presented important roles in the high quality wines, however there is no particular striking relationship between both features (positive correlation of 0.1099), as presented below.
+The boxplots showed a clear relationship between the pH scale and the citric.acid values. With a lower pH, the citric value increases as the wine becomes more acidic, and wines with higher acidic level (pH < 3.27) have received the 'high' rating.
+
+The plot above shows a negative correlation of -0.5419 between pH and citric.acid features.
 
 
 ```{r echo=FALSE, citric.acid-alcohol}
@@ -242,7 +325,7 @@ cor(red_wine$alcohol, red_wine$citric.acid)
 ```
 
 
-Still trying to relate the acidity to the alcohol level of the wine, the alcohol and the pH features presented a positive correlation of 0.2056, as shown in the following plot.
+Alcohol and citric.acid presented important roles in the high quality wines, however there is no particular relationship between both features (positive correlation of 0.1099), as presented above.
 
 
 ```{r echo=FALSE, alcohol-ph}
@@ -255,7 +338,7 @@ cor(red_wine$alcohol, red_wine$pH)
 ```
 
 
-Using a different feature, the plot below shows the relationship between alcohol and density. They presented a negative correlation of -0.4961. In other words, the higher the alcohol level, the lower the density of wine.
+Still trying to relate the acidity to the alcohol level of the wine, the alcohol and the pH features presented a positive correlation of 0.2056.
 
 
 ```{r echo=FALSE, density-alcohol}
@@ -266,6 +349,10 @@ ggplot(data = red_wine, aes(x =density, y = alcohol)) +
 
 cor(red_wine$alcohol, red_wine$density)
 ```
+
+
+Using a different feature to try to understand the importance of alcohol in the production of high quality wines, the plot above shows the relationship between alcohol and density. They presented a negative correlation of -0.4961. In other words, the higher the alcohol level, the lower the density of wine.
+
 
 # Bivariate Analysis
 
